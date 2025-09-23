@@ -5,7 +5,7 @@ import New from "./pages/New";
 import Diary from "./pages/Diary";
 import Notfound from "./pages/Notfound";
 import Edit from "./pages/Edit";
-import { useReducer } from "react";
+import { createContext, useReducer, useRef } from "react";
 
 const mockData = [
   {
@@ -23,21 +23,92 @@ const mockData = [
 ];
 
 function reducer(state, action) {
-  return state;
+  switch (action.type) {
+    case "CREATE":
+      return [action.data, ...state];
+    case "UPDATE":
+      return state.map((item) =>
+        String(item.id) === String(action.data.id) ? action.data : item
+      );
+    case "DELETE":
+      return state.filter((item) => String(item.id) !== String(action.id));
+    default:
+      return state;
+  }
 }
+
+const DiaryStateContext = createContext();
+const DiaryDispatchContext = createContext();
 
 function App() {
   const [data, dispatch] = useReducer(reducer, mockData);
+  const idRef = useRef(3);
+
+  const onCreate = (createdDate, emotionId, content) => {
+    dispatch({
+      type: "CREATE",
+      data: {
+        id: idRef.current++,
+        createdDate,
+        emotionId,
+        content,
+      },
+    });
+  };
+
+  const onUpdate = (id, reatedDate, emotionId, content) => {
+    dispatch({
+      type: "UPDATE",
+      data: {
+        id,
+        reatedDate,
+        emotionId,
+        content,
+      },
+    });
+  };
+
+  const onDelete = (id) => {
+    dispatch({
+      type: "DELETE",
+      id,
+    });
+  };
 
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Home />}></Route>
-        <Route path="/new" element={<New />}></Route>
-        <Route path="/diary/:id" element={<Diary />}></Route>
-        <Route path="/edit/:id" element={<Edit />}></Route>
-        <Route path="*" element={<Notfound />}></Route>
-      </Routes>
+      <button
+        onClick={() => {
+          onCreate(new Date().getTime(), 1, "Hello");
+        }}
+      >
+        생성 테스트 버튼
+      </button>
+      <button
+        onClick={() => {
+          onUpdate(1, new Date().getTime(), 3, "수정된일기 입니다.");
+        }}
+      >
+        수정 테스트 버튼
+      </button>
+      <button
+        onClick={() => {
+          onDelete(1);
+        }}
+      >
+        삭제 테스트 버튼
+      </button>
+      <DiaryStateContext.Provider value={data}>
+        <DiaryDispatchContext.Provider value={{ onCreate, onUpdate, onDelete }}>
+          <Routes>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/new" element={<New />}></Route>
+            <Route path="/diary/:id" element={<Diary />}></Route>
+            <Route path="/edit/:id" element={<Edit />}></Route>
+            <Route path="*" element={<Notfound />}></Route>
+          </Routes>
+        </DiaryDispatchContext.Provider>
+      </DiaryStateContext.Provider>
     </>
   );
 }
