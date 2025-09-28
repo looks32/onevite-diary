@@ -1,44 +1,50 @@
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import "./App.css";
-import Home from "./pages/Home";
-import New from "./pages/New";
-import Diary from "./pages/Diary";
-import Notfound from "./pages/Notfound";
-import Edit from "./pages/Edit";
-import { createContext, useReducer, useRef } from "react";
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import './App.css';
+import Home from './pages/Home';
+import New from './pages/New';
+import Diary from './pages/Diary';
+import Notfound from './pages/Notfound';
+import Edit from './pages/Edit';
+import { createContext, useReducer, useRef } from 'react';
 
 const mockData = [
   {
     id: 1,
-    createdDate: new Date().getTime(),
+    createdDate: new Date('2025-09-28').getTime(),
     emotionId: 1,
-    content: "1번 일기 내용",
+    content: '1번 일기 내용',
   },
   {
     id: 2,
-    createdDate: new Date().getTime(),
+    createdDate: new Date('2025-09-27').getTime(),
     emotionId: 2,
-    content: "2번 일기 내용",
+    content: '2번 일기 내용',
+  },
+  {
+    id: 3,
+    createdDate: new Date('2025-08-17').getTime(),
+    emotionId: 3,
+    content: '3번 일기 내용',
   },
 ];
 
 function reducer(state, action) {
   switch (action.type) {
-    case "CREATE":
+    case 'CREATE':
       return [action.data, ...state];
-    case "UPDATE":
+    case 'UPDATE':
       return state.map((item) =>
         String(item.id) === String(action.data.id) ? action.data : item
       );
-    case "DELETE":
+    case 'DELETE':
       return state.filter((item) => String(item.id) !== String(action.id));
     default:
       return state;
   }
 }
 
-const DiaryStateContext = createContext();
-const DiaryDispatchContext = createContext();
+export const DiaryStateContext = createContext();
+export const DiaryDispatchContext = createContext();
 
 function App() {
   const [data, dispatch] = useReducer(reducer, mockData);
@@ -46,7 +52,7 @@ function App() {
 
   const onCreate = (createdDate, emotionId, content) => {
     dispatch({
-      type: "CREATE",
+      type: 'CREATE',
       data: {
         id: idRef.current++,
         createdDate,
@@ -58,7 +64,7 @@ function App() {
 
   const onUpdate = (id, reatedDate, emotionId, content) => {
     dispatch({
-      type: "UPDATE",
+      type: 'UPDATE',
       data: {
         id,
         reatedDate,
@@ -70,7 +76,7 @@ function App() {
 
   const onDelete = (id) => {
     dispatch({
-      type: "DELETE",
+      type: 'DELETE',
       id,
     });
   };
